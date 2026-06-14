@@ -1,0 +1,66 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+enum OrderStatus {
+  DISPATCHED
+  IN_TRANSIT
+  DELIVERED
+  RTO_INITIATED
+  RTO_RECEIVED
+  RETURN_INITIATED
+  RETURN_RECEIVED
+  CLAIM_INITIATED
+  CLAIM_RECEIVED
+  PAYMENT_RECEIVED
+  CANCELLED
+  UNKNOWN
+}
+
+model Manifest {
+  id         String   @id @default(cuid())
+  fileName   String
+  uploadedAt DateTime @default(now())
+  date       String?
+  orders     Order[]
+}
+
+model Order {
+  id              String      @id @default(cuid())
+  subOrderNo      String      @unique
+  awb             String?
+  sku             String?
+  courier         String?
+  size            String?
+  quantity        Int         @default(1)
+  dispatchDate    String?
+  status          OrderStatus @default(DISPATCHED)
+  liveOrderStatus String?
+  settlementAmount Float?
+  paymentDate     String?
+  productName     String?
+  manifestId      String?
+  manifest        Manifest?   @relation(fields: [manifestId], references: [id])
+  statusHistory   StatusEvent[]
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+}
+
+model StatusEvent {
+  id        String   @id @default(cuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  status    OrderStatus
+  note      String?
+  createdAt DateTime @default(now())
+}
