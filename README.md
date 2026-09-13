@@ -1,36 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# YourPick Seller Tracker
 
-## Getting Started
+A local dashboard for Meesho sellers to track orders from dispatch through delivery and payment — the visibility Meesho doesn't give you.
 
-First, run the development server:
+## What it does
+
+- **Upload a manifest PDF** → Every sub-order is tracked from the moment you dispatch it
+- **Upload a payment statement Excel** → Orders are automatically updated with delivery status, RTO outcome, and settlement amount
+- **Dashboard** → See at a glance how many orders are in transit, delivered, returned, and how much you've been paid
+
+## First-time setup (one time only)
+
+You need Node.js installed. Download from https://nodejs.org if you don't have it.
+
+```bash
+# 1. Clone or download this project, then open the folder in a terminal
+
+# 2. Install dependencies
+npm install
+
+# 3. Set up the database (creates a local SQLite file — no internet needed)
+npx prisma migrate deploy
+npx prisma generate
+
+# 4. Start the app
+npm run dev
+```
+
+Then open http://localhost:3000 in your browser.
+
+## Daily use
+
+Every day you dispatch:
+1. Go to **Upload** → upload the manifest PDF from Meesho Supplier Panel
+2. When Meesho releases a payment statement → upload the Excel file
+3. Check your **Dashboard** for the full picture
+
+## How to run it each day
+
+Just open the project folder in a terminal and run:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Then open http://localhost:3000. Press `Ctrl+C` to stop.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Order status flow
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+Dispatched → In Transit → Delivered → Payment Received  ✅
+                        → RTO Initiated → RTO Received Back  ↩️
+                        → Delivered → Customer Returned → Return Received → (Claim)  🔄
+```
 
-## Learn More
+## Data storage
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+All data is stored locally in `prisma/dev.db` (a SQLite file on your computer). Nothing leaves your machine. Back this file up to avoid losing your order history.

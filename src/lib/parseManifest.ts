@@ -16,7 +16,7 @@ export interface ManifestOrder {
 }
 
 export async function parseManifestPdf(buffer: Buffer): Promise<ManifestOrder[]> {
-  const parser = new PDFParse({ data: buffer, disableWorker: true });
+  const parser = new PDFParse({ data: buffer });
   const { text } = await parser.getText();
 
   const orders: ManifestOrder[] = [];
